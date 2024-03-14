@@ -28,6 +28,7 @@ func TestWalk(t *testing.T) {
 			}{"Chris"},
 			[]string{"Chris"},
 		},
+
 		{
 			"struct with two string fields",
 			struct {
@@ -36,6 +37,7 @@ func TestWalk(t *testing.T) {
 			}{"Chris", "London"},
 			[]string{"Chris", "London"},
 		},
+
 		{
 			"struct with non string field",
 			struct {
@@ -44,9 +46,19 @@ func TestWalk(t *testing.T) {
 			}{"Chris", 33},
 			[]string{"Chris"},
 		},
+
 		{
 			"nested fields",
 			Person{
+				"Chris",
+				Profile{33, "London"},
+			},
+			[]string{"Chris", "London"},
+		},
+
+		{
+			"pointers to things",
+			&Person{
 				"Chris",
 				Profile{33, "London"},
 			},
