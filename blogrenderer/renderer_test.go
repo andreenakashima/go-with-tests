@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"testing"
 
+	approvals "github.com/approvals/go-approval-tests"
+
 	blogrenderer "github.com/andreenakashima/go-with-tests/blogrenderer"
 )
 
@@ -24,10 +26,6 @@ func TestRender(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		got := buf.String()
-		want := `<h1>hello world</h1>`
-		if got != want {
-			t.Errorf("got '%s' want '%s'", got, want)
-		}
+		approvals.VerifyString(t, buf.String())
 	})
 }
