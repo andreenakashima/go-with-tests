@@ -5,9 +5,8 @@ import (
 	"io"
 	"testing"
 
-	approvals "github.com/approvals/go-approval-tests"
-
 	blogrenderer "github.com/andreenakashima/go-with-tests/blogrenderer"
+	approvals "github.com/approvals/go-approval-tests"
 )
 
 func TestRender(t *testing.T) {
@@ -24,10 +23,20 @@ func TestRender(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	t.Run("it convers a single post into HTML", func(t *testing.T) {
+	t.Run("it converts a single post into HTML", func(t *testing.T) {
 		buf := bytes.Buffer{}
+
 		if err := postRenderer.Render(&buf, aPost); err != nil {
+			t.Fatal(err)
+		}
+
+		approvals.VerifyString(t, buf.String())
+	})
+	t.Run("it renders an index of posts", func(t *testing.T) {
+		buf := bytes.Buffer{}
+		posts := []blogrenderer.Post{{Title: "Hello World"}, {Title: "Hello World 2"}}
+
+		if err := postRenderer.RenderIndex(&buf, posts); err != nil {
 			t.Fatal(err)
 		}
 
