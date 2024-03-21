@@ -30,16 +30,3 @@ func applyTransaction(a Account, transaction Transaction) Account {
 	}
 	return a
 }
-
-func BalanceFor(transactions []Transaction, name string) float64 {
-	adjustBalance := func(currentBalance float64, t Transaction) float64 {
-		if t.From == name {
-			return currentBalance - t.Sum
-		}
-		if t.To == name {
-			return currentBalance + t.Sum
-		}
-		return currentBalance
-	}
-	return Reduce(transactions, adjustBalance, 0.0)
-}
