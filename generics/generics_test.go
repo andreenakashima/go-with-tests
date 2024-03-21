@@ -16,9 +16,12 @@ func TestAssertFunctions(t *testing.T) {
 
 func TestStacks(t *testing.T) {
 	t.Run("integer stack", func(t *testing.T) {
-		myStackOfInts := new(StackOfInts)
+		myStackOfInts := new(Stack[int])
 
 		AssertTrue(t, myStackOfInts.IsEmpty())
+
+		myStackOfInts.Push(123)
+		AssertFalse(t, myStackOfInts.IsEmpty())
 
 		myStackOfInts.Push(456)
 		value, _ := myStackOfInts.Pop()
@@ -26,28 +29,17 @@ func TestStacks(t *testing.T) {
 		value, _ = myStackOfInts.Pop()
 		AssertEqual(t, value, 123)
 		AssertTrue(t, myStackOfInts.IsEmpty())
+
+		myStackOfInts.Push(1)
+		myStackOfInts.Push(2)
+		firstNum, _ := myStackOfInts.Pop()
+		secondNum, _ := myStackOfInts.Pop()
+		AssertEqual(t, firstNum+secondNum, 3)
 	})
 
-	t.Run("string stack", func(t *testing.T) {
-		myStackOfStrings := new(StackOfStrings)
-
-		AssertTrue(t, myStackOfStrings.IsEmpty())
-
-		myStackOfStrings.Push("123")
-		AssertFalse(t, myStackOfStrings.IsEmpty())
-
-		myStackOfStrings.Push("456")
-		value, _ := myStackOfStrings.Pop()
-		AssertEqual(t, value, "456")
-
-		value, _ = myStackOfStrings.Pop()
-		AssertEqual(t, value, "123")
-		AssertTrue(t, myStackOfStrings.IsEmpty())
-
-	})
 }
 
-func AssertEqual[T comparable](t *testing.T, got, want T) {
+func AssertEqual(t *testing.T, got, want interface{}) {
 	t.Helper()
 	if got != want {
 		t.Errorf("got %+v, want %+v", got, want)
