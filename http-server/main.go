@@ -15,7 +15,7 @@ func main() {
 
 	}
 
-	store := &FileSystemPlayerStore{db}
+	store := NewFileSystemPlayerStore(db)
 	server := NewPlayerServer(store)
 
 	if err := http.ListenAndServe(":5000", server); err != nil {
