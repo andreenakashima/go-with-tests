@@ -5,11 +5,31 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 )
 
 type FileSystemPlayerStore struct {
 	database *json.Encoder
 	league   League
+}
+
+func NewFileSystemPlayerStore(file *os.File) (*FileSystemPlayerStore, error) {
+	err := initialisePlayerDBFile(file)
+
+	if err != nil {
+		return nil, fmt.Errorf("problem initialising player db file %v", err)
+	}
+
+	league, err := NewLeague(file)
+
+	if err != nil {
+		return nil, fmt.Errorf("problem loading player store form file %s, %v", file.Name(), err)
+	}
+
+	return &FileSystemPlayerStore{
+		database: json.NewEncoder(&tape{file}),
+		league:   league,
+	}, nil
 }
 
 func initialisePlayerDBFile(file *os.File) error {
@@ -28,25 +48,10 @@ func initialisePlayerDBFile(file *os.File) error {
 	return nil
 }
 
-func NewFileSystemPlayerStore(file *os.File) (*FileSystemPlayerStore, error) {
-	err := initialisePlayerDBFile(file)
-
-	if err != nil {
-		return nil, fmt.Errorf("problem initialising player db file %v", err)
-	}
-
-	league, err := NewLeague(file)
-	if err != nil {
-		return nil, fmt.Errorf("problem loading player store form file %s, %v", file.Name(), err)
-	}
-
-	return &FileSystemPlayerStore{
-		database: json.NewEncoder(&tape{file}),
-		league:   league,
-	}, nil
-}
-
 func (f *FileSystemPlayerStore) GetLeague() League {
+	sort.Slice(f.league, func(i, j int) bool {
+		return f.league[i].Wins > f.league[j].Wins
+	})
 	return f.league
 }
 
