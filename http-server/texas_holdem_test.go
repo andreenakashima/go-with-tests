@@ -62,6 +62,7 @@ func TestGame_Finish(t *testing.T) {
 func checkSchedulingCases(cases []poker.ScheduledAlert, t *testing.T, blindAlerter *poker.SpyBlindAlerter) {
 	for i, want := range cases {
 		t.Run(fmt.Sprint(want), func(t *testing.T) {
+
 			if len(blindAlerter.Alerts) <= i {
 				t.Fatalf("alert %d was not scheduled %v", i, blindAlerter.Alerts)
 			}

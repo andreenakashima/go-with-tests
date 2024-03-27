@@ -5,6 +5,7 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"time"
 
 	poker "github.com/andreenakashima/go-with-tests/http-server"
 )
@@ -75,11 +76,26 @@ func TestCLI(t *testing.T) {
 		assertGameNotStarted(t, game)
 		assertMessagesSentToUser(t, stdout, poker.PlayerPrompt, poker.BadPlayerInputErrMsg)
 	})
+
+	t.Run("it prints an error when the winner is declared incorrectly", func(t *testing.T) {
+		game := &GameSpy{}
+
+		out := &bytes.Buffer{}
+		in := userSends("8", "Lloyd is a killer")
+
+		poker.NewCLI(in, out, game).PlayPoker()
+
+		assertGameNotFinished(t, game)
+		assertMessagesSentToUser(t, out, poker.PlayerPrompt, poker.BadWinnerInputMsg)
+	})
 }
 
 func assertGameStartedWith(t testing.TB, game *GameSpy, numberOfPlayersWanted int) {
 	t.Helper()
-	if game.StartCalledWith != numberOfPlayersWanted {
+	passed := retryUntil(500*time.Millisecond, func() bool {
+		return game.StartCalledWith == numberOfPlayersWanted
+	})
+	if !passed {
 		t.Errorf("wanted Start called with %d but got %d", numberOfPlayersWanted, game.StartCalledWith)
 	}
 }
@@ -98,13 +114,6 @@ func assertGameNotStarted(t testing.TB, game *GameSpy) {
 	}
 }
 
-func assertFinishCalledWith(t testing.TB, game *GameSpy, winner string) {
-	t.Helper()
-	if game.FinishCalledWith != winner {
-		t.Errorf("expected finish called with %q but got %q", winner, game.FinishCalledWith)
-	}
-}
-
 func assertScheduledAlert(t testing.TB, got, want poker.ScheduledAlert) {
 	t.Helper()
 
@@ -120,5 +129,17 @@ func assertMessagesSentToUser(t testing.TB, stdout *bytes.Buffer, messages ...st
 	got := stdout.String()
 	if got != want {
 		t.Errorf("got %q sent to stdout but expected %+v", got, messages)
+	}
+}
+
+func assertFinishCalledWith(t testing.TB, game *GameSpy, winner string) {
+	t.Helper()
+
+	passed := retryUntil(500*time.Millisecond, func() bool {
+		return game.FinishCalledWith == winner
+	})
+
+	if !passed {
+		t.Errorf("expected finish called with %q but got %q", winner, game.FinishCalledWith)
 	}
 }
